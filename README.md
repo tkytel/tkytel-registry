@@ -104,7 +104,7 @@ prefix は `preferredPrefix` のうち、まだ使われていないものから
 
 しかしながら、他の交換局が自分の `providers` にあなたを載せることには影響しません。それはあなたとその局の間の話です。
 
-もう1つ、`aboutMe.unavailable` をこのレジストリは掲載拒否しているとは判断しません。
+また、`aboutMe.unavailable` をこのレジストリは掲載拒否しているとは判断しません。
 
 ### updater について
 
