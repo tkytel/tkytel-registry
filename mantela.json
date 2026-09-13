@@ -1,0 +1,175 @@
+{
+  "$schema": "https://tkytel.github.io/mantela/0.1.x/mantela.schema.json",
+  "version": "0.1.x",
+  "aboutMe": {
+    "name": "tkytel Mantela Registry",
+    "identifier": "08b737b4-125c-47fa-824e-b129f89f7b60",
+    "preferredPrefix": [],
+    "unavailable": true
+  },
+  "extensions": [],
+  "providers": [
+    {
+      "identifier": "93b2d256-39c1-4053-bda1-c0643dd40690",
+      "mantela": "https://unstable.kusaremkn.com/.well-known/mantela.json",
+      "name": "MikaNeTEL",
+      "prefix": "510"
+    },
+    {
+      "identifier": "153048c5-db33-4e00-ad49-694762555d5c",
+      "name": "jiminy Local",
+      "prefix": "119",
+      "mantela": "https://108jiminy.jp/phone/jiminylocalmantela.json"
+    },
+    {
+      "identifier": "3be47f94-3185-4198-ac3d-ca5ccb573cc2",
+      "name": "yude",
+      "prefix": "390",
+      "mantela": "https://www.yude.jp.eu.org/.well-known/mantela.json"
+    },
+    {
+      "identifier": "f5c44210-8cb8-4e87-85a7-df3d3ff951e6",
+      "name": "pepepper",
+      "prefix": "617",
+      "mantela": "https://www.pepepper.net/.well-known/mantela.json"
+    },
+    {
+      "identifier": "e5e9120a-1b58-4eb7-b2c8-efe5b452c910",
+      "name": "moyashitel",
+      "prefix": "113",
+      "mantela": "https://moyashim-25.com/.well-known/mantela.json"
+    },
+    {
+      "identifier": "4a96b422-c07e-7b84-82aa-cd665e1e69a8",
+      "name": "8yazaki",
+      "prefix": "808",
+      "mantela": "https://8yazaki.github.io/mantela/mantela.json"
+    },
+    {
+      "identifier": "d8405294-3ea4-40c4-8809-23dd6d917d38",
+      "name": "GenshokaNeTEL",
+      "prefix": "229",
+      "mantela": "https://unstable.kusaremkn.com/.well-known/priv-mantela.json"
+    },
+    {
+      "identifier": "47abe85d-fe09-691d-f928-4f75b27a157f",
+      "name": "hedgehog-tokyo",
+      "prefix": "242",
+      "mantela": "https://toybox.rainyvillage.jp/mantela/mantela.json"
+    },
+    {
+      "identifier": "24e24ec4-746a-4736-920d-47a725201154",
+      "name": "macaron",
+      "prefix": "798",
+      "mantela": "https://telephony.jm8krg.net/.well-known/mantela.json"
+    },
+    {
+      "identifier": "81c99427-4a30-4364-8b17-fed97f347439",
+      "name": "sgch",
+      "prefix": "248",
+      "mantela": "https://sgchsgch.net/.well-known/mantela.json"
+    },
+    {
+      "identifier": "859c4016-624e-495f-86b4-ca0beb2e7c62",
+      "name": "YamaSeriPhones",
+      "prefix": "418",
+      "mantela": "https://yamaserif.com/phone/mantela.json"
+    },
+    {
+      "identifier": "8b741e2b-45f9-4187-9da1-05d866b79a09",
+      "name": "kimkim0106",
+      "prefix": "106",
+      "mantela": "https://kimkim0106.net/.well-known/mantela.json"
+    },
+    {
+      "identifier": "5752ca4c-c828-4946-a8f3-7f8272206f2d",
+      "name": "AmagasakiSHINANO",
+      "prefix": "661",
+      "mantela": "https://da-tenshi.github.io/mantela.json"
+    },
+    {
+      "identifier": "edbb2bb2-fa28-11ef-8cbc-6f97f0d24f36",
+      "name": "SCRWNLNET",
+      "prefix": "782",
+      "mantela": "https://www.scrwnl.eu.org/.well-known/mantela.json"
+    },
+    {
+      "identifier": "376299fd-2ab2-4848-aa2c-18aea6f5abef",
+      "name": "Kur0den-tel",
+      "prefix": "961",
+      "mantela": "https://www.kur0den.net/.well-known/mantela.json"
+    },
+    {
+      "name": "rei_k Public",
+      "identifier": "66b340f4-de88-4ab4-9ac3-21a9a06bb012",
+      "prefix": "224",
+      "mantela": "https://sousuke0422.github.io/.well-known/mantela.json"
+    },
+    {
+      "name": "tkytel-8931(891)",
+      "identifier": "530251dc-0f93-4226-89c8-d71f900a1f0b",
+      "prefix": "8931",
+      "mantela": "https://tkytel-8931.f5.si/.well-known/mantela.json"
+    },
+    {
+      "name": "tkytel-8931(891)",
+      "identifier": "530251dc-0f93-4226-89c8-d71f900a1f0b",
+      "prefix": "891",
+      "mantela": "https://tkytel-8931.f5.si/.well-known/mantela.json"
+    },
+    {
+      "name": "zin3",
+      "identifier": "498a3211-0f85-42a7-b2c0-44fb7095bd67",
+      "prefix": "333",
+      "mantela": "https://zin3.cc/.well-known/mantela.json"
+    },
+    {
+      "name": "LemoNeTEL",
+      "identifier": "9df701c2-cecd-487e-abf4-c90a52748ffb",
+      "prefix": "513",
+      "mantela": "https://mantela.kusaremkn.com/lemonetel.json"
+    },
+    {
+      "name": "spla-tel",
+      "identifier": "bf979778-1d1f-4a33-abac-8cbc2f3dae91",
+      "prefix": "944",
+      "mantela": "https://hkshuttle.github.io/tkytel/mantela.json"
+    },
+    {
+      "name": "kaji-tteru",
+      "identifier": "cafebebe-9999-8888-11fe-da111e521234",
+      "prefix": "520",
+      "mantela": "https://kaji.jp/.well-known/mantela.json"
+    },
+    {
+      "name": "みゅーと東京局",
+      "identifier": "8fa08edd-26e4-4762-99b1-109607e0fc22",
+      "prefix": "237",
+      "mantela": "https://nemnet-lab-pbx.github.io/mantela/mantela.json"
+    },
+    {
+      "name": "みゅーと札幌局",
+      "identifier": "b45b51e4-307a-430e-8503-fe4f5b9672e8",
+      "prefix": "238",
+      "mantela": "https://nemnet-lab-pbx.github.io/mantela/mantela_sapporo.json"
+    },
+    {
+      "name": "roi-tel",
+      "identifier": "31e54b78-fdf0-4733-aa6c-60b5a92bb3c0",
+      "prefix": "732",
+      "mantela": "https://roiarise.github.io/mantela.json"
+    },
+    {
+      "name": "ab2m-ありあな局",
+      "identifier": "402b0d3f-d499-4bf7-8ef0-bd25c1edd69a",
+      "prefix": "462",
+      "mantela": "https://allianaab2m.github.io/mantela/mantela.json"
+    },
+    {
+      "name": "tmk-tel",
+      "identifier": "8bb2ad20-6beb-48e1-8f12-df97722767f4",
+      "prefix": "223",
+      "mantela": "https://tkytel.rusk.moe/mantela.json"
+    }
+  ]
+}
