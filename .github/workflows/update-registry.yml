@@ -1,0 +1,81 @@
+name: Update registry
+
+on:
+  schedule:
+    # 毎週月曜 03:17 JST。スケジュール実行は毎時00分に集中して遅延するので、ずらしてある
+    - cron: "17 18 * * 0"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: mantela.json を更新せず、レポートだけ出す
+        type: boolean
+        default: false
+
+# 同じ registry を二重に更新しないよう、実行は1本に絞る
+concurrency:
+  group: update-registry
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  BRANCH: bot/update-providers
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: cmd/updater
+        run: bun install --frozen-lockfile
+
+      - name: Collect providers one hop away
+        id: update
+        run: |
+          bun run cmd/updater/index.ts run mantela.json \
+            --report "$RUNNER_TEMP/report.md" \
+            ${{ inputs.dry_run && '--dry-run' || '' }} > /dev/null
+
+          # レポートは PR を出さないときでも Actions の実行サマリから読めるようにする
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+
+          if git diff --quiet mantela.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            # レポートの1行目が「1ホップ先にいた未登録の交換局 N 局を providers に追加した。」
+            echo "subject=$(head -1 "$RUNNER_TEMP/report.md" | sed 's/。$//')" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open pull request
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUBJECT: ${{ steps.update.outputs.subject }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git switch --force-create "$BRANCH"
+          git commit mantela.json --message "chore(registry): $SUBJECT"
+          git push --force origin "$BRANCH"
+
+          # 前回の PR が開いたままなら、作り直さず本文を差し替える
+          if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq length)" = "0" ]; then
+            gh pr create \
+              --head "$BRANCH" \
+              --title "chore(registry): $SUBJECT" \
+              --body-file "$RUNNER_TEMP/report.md"
+          else
+            gh pr edit "$BRANCH" \
+              --title "chore(registry): $SUBJECT" \
+              --body-file "$RUNNER_TEMP/report.md"
+          fi

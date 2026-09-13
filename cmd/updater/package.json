@@ -1,0 +1,16 @@
+{
+  "name": "updater",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "^4.0.0-rc.115",
+    "effect": "^4.0.0-rc.115"
+  }
+}
