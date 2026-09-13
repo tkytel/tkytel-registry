@@ -40,7 +40,10 @@ jobs:
       - name: Collect providers one hop away
         id: update
         run: |
+          # denylist は既定パスでも拾えるが、CI では明示する。ファイルが消えたときに
+          # 黙って拒否が素通りせず、ここで落ちるようにするため
           bun run cmd/updater/index.ts run mantela.json \
+            --denylist denylist.json \
             --report "$RUNNER_TEMP/report.md" \
             ${{ inputs.dry_run && '--dry-run' || '' }} > /dev/null
 

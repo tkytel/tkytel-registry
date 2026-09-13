@@ -7,10 +7,11 @@ registry の `providers` に載っている各局の `mantela.json` を読み、
 
 ```bash
 bun install
-bun run index.ts run ../../mantela.json [--report <file>] [--dry-run]
+bun run index.ts run ../../mantela.json [--report <file>] [--denylist <file>] [--dry-run]
 ```
 
 - `--report <file>` PR 本文用の Markdown レポートを書き出す（stdout にも出る）
+- `--denylist <file>` 掲載拒否のリスト。既定は `mantela.json` と同じディレクトリの `denylist.json` で、無ければ空として扱う。明示したファイルが無い場合はエラー
 - `--dry-run` `mantela.json` を更新せず、レポートだけ出す
 
 毎週月曜と手動 dispatch で `.github/workflows/update-registry.yml` が実行し、差分があれば
@@ -38,3 +39,11 @@ prefix は `preferredPrefix` のうち、衝突しないもので
 
 自己申告と参照元が食い違った箇所は、自己申告を採用したうえで全部レポートに出す。判断が要る
 ものを黙って決めない。
+
+## 掲載拒否
+
+`denylist.json` に載っている局は追加しない。`mantela.json` を取得しにも行かないし、すでに
+`providers` に載っていれば削除する。判定は `identifier` と mantela URL のどちらの一致でも
+効くので、局が identifier を振り直したり配信先を変えたりしても片方で止まる。
+
+申請の窓口と記入例はリポジトリルートの [README](../../README.md) にある。

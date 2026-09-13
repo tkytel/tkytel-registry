@@ -47,3 +47,22 @@ export const Mantela = S.Struct({
 })
 
 export type Mantela = typeof Mantela.Type
+
+/**
+ * 掲載を拒否している交換局。identifier と mantela URL のどちらか一方、または両方で指定する。
+ *
+ * 両方書けるようにしてあるのは、局が identifier を振り直したり配信先の URL を変えたりする
+ * ことがあるため。片方が変わっても、もう片方で止まる。
+ */
+export const DenyEntry = S.Struct({
+  identifier: S.optional(Identifier),
+  mantela: S.optional(MantelaUrl),
+  reason: S.String,
+  since: S.String.check(S.isPattern(/^\d{4}-\d{2}-\d{2}$/)),
+})
+
+export type DenyEntry = typeof DenyEntry.Type
+
+export const Denylist = S.Struct({
+  entries: S.Array(DenyEntry),
+})
