@@ -170,6 +170,138 @@
       "identifier": "8bb2ad20-6beb-48e1-8f12-df97722767f4",
       "prefix": "223",
       "mantela": "https://tkytel.rusk.moe/mantela.json"
+    },
+    {
+      "identifier": "46fb2dc7-ee07-435d-9a27-0a7b4d43d3d7",
+      "name": "MCeTeLO",
+      "prefix": "917",
+      "mantela": "https://meishicafei.github.io/.well-known/mantela.json"
+    },
+    {
+      "identifier": "5bbdd9ae-4d41-420c-80df-eba486495b12",
+      "name": "jiminy Public",
+      "prefix": "108",
+      "mantela": "https://108jiminy.jp/phone/jiminypublicmantela.json"
+    },
+    {
+      "identifier": "41aca3d1-6882-4e4d-9651-5e52464902f7",
+      "name": "Goryokaku",
+      "prefix": "767",
+      "mantela": "https://halka.jp/.well-known/mantela.json"
+    },
+    {
+      "identifier": "497F92E7-6B9F-4D33-91B9-B34E94402913",
+      "name": "sasakulab",
+      "prefix": "530",
+      "mantela": "https://sasakulab.com/.well-known/mantela.json"
+    },
+    {
+      "identifier": "9e40b39a-2964-4868-af71-ebe8e71615eb",
+      "name": "YuriConoHa",
+      "prefix": "975",
+      "mantela": "https://yuriko.co.nz/.well-known/mantela.json"
+    },
+    {
+      "identifier": "91c5f34f-c178-4cfe-a488-be6ed00fac3b",
+      "name": "hieri",
+      "prefix": "890",
+      "mantela": "https://hieri1021.github.io/.well-known/mantela.json"
+    },
+    {
+      "identifier": "9ec68766-eca9-47fd-b4d8-d89d121d7c75",
+      "name": "AM-TEL",
+      "prefix": "222",
+      "mantela": "https://da-tenshi.github.io/AMtel.json"
+    },
+    {
+      "identifier": "db30e15e-b101-4069-a406-9af3fdfe5c2e",
+      "name": "yoshina",
+      "prefix": "0447",
+      "mantela": "https://yosh1na-hub.github.io/Mantela/Mantela.yoshina.json"
+    },
+    {
+      "identifier": "906286ae-3639-453f-b500-44a910445968",
+      "name": "SiRin Seoul PBX",
+      "prefix": "101",
+      "mantela": "https://raw.githubusercontent.com/sirin-interact/.well-known/refs/heads/main/mantela.json"
+    },
+    {
+      "identifier": "b2b242ff-826f-78a4-4315-c1d0573311de",
+      "name": "KaiwareTEL",
+      "prefix": "308",
+      "mantela": "https://kaiware9011.github.io/mantela/KaiwareMantela.json"
+    },
+    {
+      "identifier": "008902ee-6102-48b9-8e70-49d27058ad7e",
+      "name": "junks",
+      "prefix": "486",
+      "mantela": "https://junks.dev/.well-known/mantela.json"
+    },
+    {
+      "identifier": "46b3929e-a4af-48ad-827a-a13d672c01d5",
+      "name": "Numekick",
+      "prefix": "8840",
+      "mantela": "https://numekick.github.io/Numekick.Mantela/numekick.json"
+    },
+    {
+      "identifier": "7db54f53-8007-409b-a4bf-0627c98c1b2b",
+      "name": "TOHKA-TEL-2",
+      "prefix": "425",
+      "mantela": "https://raw.githubusercontent.com/keitotobi1/.well-known/refs/heads/main/mantela.json"
+    },
+    {
+      "identifier": "8ad8afa6-11a8-4e61-b28d-343393f3d4d4",
+      "name": "NoriTEL",
+      "prefix": "989",
+      "mantela": "https://ajinori256.com/.well-known/mantela.json"
+    },
+    {
+      "identifier": "cea45d03-c9d9-4df0-89ad-6117ceed051d",
+      "name": "KinkaNeTEL",
+      "prefix": "5551",
+      "mantela": "https://unstable.kusaremkn.com/.well-known/kinkanetel-mantela.json"
+    },
+    {
+      "identifier": "398a8636-d530-44cc-9433-4b967c74265a",
+      "name": "osaka-pbx.voip .yuriko.co.nz",
+      "prefix": "976",
+      "mantela": "https://yuriko.co.nz/.well-known/osaka-pbx.json"
+    },
+    {
+      "identifier": "3c558c08-66da-4d79-ba14-db84d9407cf3",
+      "name": "kimkim0106 sub",
+      "prefix": "61",
+      "mantela": "https://kimkim0106.net/.well-known/sub-mantela.json"
+    },
+    {
+      "identifier": "58a51ff5-e56c-7814-48c8-6bb492703345",
+      "name": "SNET-DeltaFlair",
+      "prefix": "664",
+      "mantela": "https://da-tenshi.github.io/delta.json"
+    },
+    {
+      "identifier": "a3e985a6-e2b3-4e33-b711-5580c3a1bf9a",
+      "name": "SHINANOTEL FreePBX",
+      "prefix": "663",
+      "mantela": "https://da-tenshi.github.io/mantela_copy_copy.json"
+    },
+    {
+      "identifier": "c101f71a-f10d-4f39-af18-2a8f87bab5d0",
+      "name": "montel",
+      "prefix": "599",
+      "mantela": "https://github.nomulabo.com/mantela/mantela.json"
+    },
+    {
+      "identifier": "d4ae222d-bff2-4511-a995-786825db4f37",
+      "name": "SHINANOTEL Sub",
+      "prefix": "662",
+      "mantela": "https://da-tenshi.github.io/mantela_copy.json"
+    },
+    {
+      "identifier": "f040d6dc-7019-21a9-3af2-c8427aa9e9b9",
+      "name": "eggplants",
+      "prefix": "810",
+      "mantela": "https://egpl.dev/.well-known/mantela.json"
     }
   ]
 }
