@@ -1,7 +1,7 @@
 import { BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun"
 import { Console, Data, Effect, FileSystem, Path, Schedule, Schema } from "effect"
 import { HttpClient } from "effect/unstable/http"
-import { Mantela, Provider, type AboutMe } from "./schema"
+import { Denylist, Mantela, Provider, type AboutMe, type DenyEntry } from "./schema"
 
 class RegistryError extends Data.TaggedError("RegistryError")<{ message: string }> { }
 
@@ -92,6 +92,58 @@ const readRegistry = Effect.fn("readRegistry")(function* (file: string) {
 })
 
 /**
+ * 掲載拒否のリストを読む。
+ *
+ * 既定では mantela.json と同じディレクトリの denylist.json を見て、無ければ空として扱う。
+ * --denylist で明示されたときだけ、無いことをエラーにする。指定したファイルが読まれないまま
+ * 拒否が素通りするのが一番まずい。
+ */
+const readDenylist = Effect.fn("readDenylist")(function* (file: string, required: boolean) {
+  const fs = yield* FileSystem.FileSystem
+
+  const exists = yield* fs.exists(file).pipe(Effect.catch(() => Effect.succeed(false)))
+  if (!exists) {
+    if (required) return yield* new RegistryError({ message: `${file} が無い` })
+    return []
+  }
+
+  const text = yield* fs.readFileString(file).pipe(
+    Effect.mapError((cause) => new RegistryError({ message: `${file} を読めない: ${cause}` })),
+  )
+
+  const raw = yield* Effect.try({
+    try: () => JSON.parse(text),
+    catch: (cause) => new RegistryError({ message: `${file} が JSON として壊れている: ${cause}` }),
+  })
+
+  const { entries } = yield* Schema.decodeUnknownEffect(Denylist)(raw, { reportInput: true }).pipe(
+    Effect.mapError((cause) => new RegistryError({ message: `${file} が Denylist として不正: ${cause}` })),
+  )
+
+  for (const [index, entry] of entries.entries()) {
+    if (entry.identifier === undefined && entry.mantela === undefined) {
+      return yield* new RegistryError({
+        message: `${file} の entries[${index}] に identifier も mantela も無い。どちらか一方は要る`,
+      })
+    }
+  }
+
+  return entries
+})
+
+/** denylist に載っているかを引く。identifier と mantela URL のどちらで一致しても拒否とみなす */
+const makeDenied = (entries: ReadonlyArray<DenyEntry>) => {
+  const byIdentifier = new Map<string, DenyEntry>()
+  const byUrl = new Map<string, DenyEntry>()
+  for (const entry of entries) {
+    if (entry.identifier !== undefined) byIdentifier.set(entry.identifier, entry)
+    if (entry.mantela !== undefined) byUrl.set(normalizeUrl(entry.mantela), entry)
+  }
+  return (provider: { identifier: string, mantela: string }) =>
+    byIdentifier.get(provider.identifier) ?? byUrl.get(normalizeUrl(provider.mantela))
+}
+
+/**
  * 他局の mantela.json を取得する。
  * providers の要素は1件ずつ decode し、壊れているものだけを落とす。局まるごと捨てない。
  */
@@ -128,21 +180,36 @@ const fetchMantela = Effect.fn("fetchMantela")(function* (url: string) {
  * 3段目を踏むのは、参照元によって同じ局の名前・prefix・URL の言うことが食い違うため。
  * 同時に、取得できない候補 (mantela URL が空、404 など) がここで落ちる。
  */
-const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: string) {
+const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: string, denylistFile: string, denylistRequired: boolean) {
   const registry = yield* readRegistry(file)
+  const denied = makeDenied(yield* readDenylist(denylistFile, denylistRequired))
 
-  const knownIdentifiers = new Set([registry.aboutMe.identifier, ...registry.entries.map((e) => e.identifier)])
-  const knownUrls = new Set(registry.entries.map((e) => normalizeUrl(e.mantela)))
-  const takenPrefixes = new Set(registry.entries.map((e) => e.prefix))
+  // 掲載を拒否している局が既に載っていたら外す。以降はこの局が最初から居なかったものとして扱うので、
+  // 押さえていた prefix も解放されるし、再発見されたときは拒否として報告される
+  const removed: Array<{ index: number, entry: Provider, deny: DenyEntry }> = []
+  const remaining: Array<Provider> = []
+  for (const [index, entry] of registry.entries.entries()) {
+    const deny = denied(entry)
+    if (deny === undefined) remaining.push(entry)
+    else removed.push({ index, entry, deny })
+  }
+
+  const knownIdentifiers = new Set([registry.aboutMe.identifier, ...remaining.map((e) => e.identifier)])
+  const knownUrls = new Set(remaining.map((e) => normalizeUrl(e.mantela)))
+  const takenPrefixes = new Set(remaining.map((e) => e.prefix))
 
   // 同じ局が prefix 違いで二重に載っていることがある (tkytel-8931 の 891 / 8931)。取得は URL 単位で1回でよい
   const targets = new Map<string, Provider>()
-  for (const entry of registry.entries) {
+  for (const entry of remaining) {
     const url = normalizeUrl(entry.mantela)
     if (!targets.has(url)) targets.set(url, entry)
   }
 
-  yield* Console.error(`registry: ${registry.entries.length} 局を直接参照している (${targets.size} URL)`)
+  if (removed.length > 0) {
+    yield* Console.error(`掲載拒否により ${removed.length} 局を providers から外す`)
+  }
+
+  yield* Console.error(`registry: ${remaining.length} 局を直接参照している (${targets.size} URL)`)
 
   const [directFailures, direct] = yield* Effect.partition(
     [...targets.values()],
@@ -160,6 +227,7 @@ const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: st
   // 候補は mantela URL 単位でまとめる。同じ局を別 identifier で指している参照が実在するため
   const candidates = new Map<string, { url: string, refs: Array<Ref> }>()
   const rejected: Array<Skipped> = []
+  const blocked = new Map<string, Skipped>()
 
   for (const { entry: via, mantela } of direct) {
     for (const entry of mantela.entries) {
@@ -167,6 +235,16 @@ const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: st
 
       const url = normalizeUrl(entry.mantela)
       if (knownUrls.has(url)) continue
+
+      // 拒否している局は取得もしに行かない
+      const deny = denied(entry)
+      if (deny !== undefined) {
+        blocked.set(deny.identifier ?? deny.mantela ?? url, {
+          label: `${normalizeName(entry.name)} (\`${entry.identifier}\`)`,
+          reason: `${deny.reason} (${deny.since})`,
+        })
+        continue
+      }
 
       const found = candidates.get(url)
       if (found === undefined) {
@@ -216,6 +294,16 @@ const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: st
 
   for (const { aboutMe, urls, refs } of ordered) {
     const via = unique(refs.map((r) => r.via)).join(", ")
+
+    // 参照元が古い identifier を書いていた場合、拒否に引っかかるのは自己申告を見た後になる
+    const deny = denied({ identifier: aboutMe.identifier, mantela: urls[0]! })
+    if (deny !== undefined) {
+      blocked.set(deny.identifier ?? deny.mantela ?? urls[0]!, {
+        label: `${normalizeName(aboutMe.name)} (\`${aboutMe.identifier}\`)`,
+        reason: `${deny.reason} (${deny.since})`,
+      })
+      continue
+    }
 
     // 名乗った identifier が既知だった場合。参照元が誤った identifier を書いていたということなので、
     // 追加する必要はない
@@ -286,19 +374,38 @@ const resolveNewProviders = Effect.fn("resolveNewProviders")(function* (file: st
     })
   }
 
-  return { registry, added, conflicts, rejected, directFailures, brokenEntries }
+  return { registry, removed, added, conflicts, rejected, directFailures, brokenEntries, blocked: [...blocked.values()] }
 })
 
 type Resolution = Effect.Success<ReturnType<typeof resolveNewProviders>>
 
 /** PR の本文にそのまま貼れる形のレポート */
 const renderReport = (resolution: Resolution) => {
-  const { added, conflicts, rejected, directFailures, brokenEntries } = resolution
+  const { removed, added, conflicts, rejected, directFailures, brokenEntries, blocked } = resolution
   const lines: Array<string> = []
 
-  lines.push(added.length === 0
-    ? "1ホップ先に未登録の交換局は見つかりませんでした。"
-    : `1ホップ先にいた未登録の交換局 ${added.length} 局を providers に追加しました。`)
+  // この1行がそのままコミットの件名になる
+  const headline = [
+    added.length > 0 ? `1ホップ先にいた未登録の交換局 ${added.length} 局を追加` : undefined,
+    removed.length > 0 ? `掲載を拒否している ${removed.length} 局を削除` : undefined,
+  ].filter((part) => part !== undefined)
+
+  lines.push(headline.length === 0
+    ? "providers に変更はありません。"
+    : `${headline.join("し、")}しました。`)
+
+  if (removed.length > 0) {
+    lines.push(
+      "",
+      `## 掲載拒否により削除した交換局 (${removed.length})`,
+      "",
+      "| prefix | 局名 | identifier | 理由 | 申し出 |",
+      "| --- | --- | --- | --- | --- |",
+    )
+    for (const { entry, deny } of removed) {
+      lines.push(`| \`${entry.prefix}\` | ${cell(entry.name)} | \`${entry.identifier}\` | ${cell(deny.reason)} | ${deny.since} |`)
+    }
+  }
 
   if (added.length > 0) {
     lines.push(
@@ -341,6 +448,12 @@ const renderReport = (resolution: Resolution) => {
     for (const failure of directFailures) lines.push(`- ${failure.url}: ${failure.message}`)
   }
 
+  if (blocked.length > 0) {
+    lines.push("", `## 掲載拒否により追加しなかった候補 (${blocked.length})`, "",
+      "denylist.json に載っているため探索の対象外です。", "")
+    for (const { label, reason } of blocked) lines.push(`- ${label}: ${reason}`)
+  }
+
   if (brokenEntries.length > 0) {
     lines.push("", `## providers に壊れたエントリがある局 (${brokenEntries.length})`, "",
       "Mantela として読めないエントリは読み飛ばしています。その先の交換局は探索できていません。", "")
@@ -352,8 +465,10 @@ const renderReport = (resolution: Resolution) => {
 
 const writeRegistry = Effect.fn("writeRegistry")(function* (resolution: Resolution) {
   const fs = yield* FileSystem.FileSystem
-  const { registry, added } = resolution
+  const { registry, removed, added } = resolution
 
+  const removedIndices = new Set(removed.map(({ index }) => index))
+  registry.raw.providers = registry.raw.providers.filter((_, index) => !removedIndices.has(index))
   registry.raw.providers.push(...added.map(({ entry }) => ({ ...entry })))
 
   yield* fs.writeFileString(registry.absolute, JSON.stringify(registry.raw, null, 2) + "\n").pipe(
@@ -361,8 +476,14 @@ const writeRegistry = Effect.fn("writeRegistry")(function* (resolution: Resoluti
   )
 })
 
-const run = Effect.fn("run")(function* (file: string, options: { report?: string, dryRun: boolean }) {
-  const resolution = yield* resolveNewProviders(file)
+const run = Effect.fn("run")(function* (
+  file: string,
+  options: { report?: string, denylist?: string, dryRun: boolean },
+) {
+  const path = yield* Path.Path
+  const denylistFile = options.denylist ?? path.join(path.dirname(path.resolve(file)), "denylist.json")
+
+  const resolution = yield* resolveNewProviders(file, denylistFile, options.denylist !== undefined)
   const report = renderReport(resolution)
 
   if (options.report !== undefined) {
@@ -372,13 +493,17 @@ const run = Effect.fn("run")(function* (file: string, options: { report?: string
     )
   }
 
+  const changed = resolution.added.length + resolution.removed.length
+
   if (options.dryRun) {
     yield* Console.error("--dry-run のため mantela.json は更新していない")
-  } else if (resolution.added.length > 0) {
+  } else if (changed > 0) {
     yield* writeRegistry(resolution)
-    yield* Console.error(`${resolution.registry.absolute} に ${resolution.added.length} 局を追記した`)
+    yield* Console.error(
+      `${resolution.registry.absolute}: ${resolution.added.length} 局を追記、${resolution.removed.length} 局を削除した`,
+    )
   } else {
-    yield* Console.error("追加する交換局が無いので mantela.json は更新していない")
+    yield* Console.error("変更が無いので mantela.json は更新していない")
   }
 
   yield* Console.log(report)
@@ -386,13 +511,15 @@ const run = Effect.fn("run")(function* (file: string, options: { report?: string
   return resolution
 })
 
-const usage = `使い方: bun run index.ts run <mantela.json> [--report <file>] [--dry-run]
+const usage = `使い方: bun run index.ts run <mantela.json> [--report <file>] [--denylist <file>] [--dry-run]
 
   registry の providers にいる各局の mantela.json を読み、そこにしかいない交換局
   （registry から1ホップ）を providers に追記する
 
-  --report <file>  PR 本文用の Markdown レポートを書き出す（stdout にも出る）
-  --dry-run        mantela.json を更新せず、レポートだけ出す`
+  --report <file>    PR 本文用の Markdown レポートを書き出す（stdout にも出る）
+  --denylist <file>  掲載拒否のリスト。既定は mantela.json と同じディレクトリの
+                     denylist.json で、無ければ空として扱う
+  --dry-run          mantela.json を更新せず、レポートだけ出す`
 
 switch (Bun.argv[2]) {
   case "run": {
@@ -403,15 +530,22 @@ switch (Bun.argv[2]) {
       process.exit(1)
     }
 
-    const reportIndex = flags.indexOf("--report")
-    const report = reportIndex === -1 ? undefined : flags[reportIndex + 1]
-    if (reportIndex !== -1 && report === undefined) {
-      console.error("--report にはファイルパスが要る")
-      process.exit(1)
+    const valueOf = (flag: string) => {
+      const index = flags.indexOf(flag)
+      if (index === -1) return undefined
+      const value = flags[index + 1]
+      if (value === undefined || value.startsWith("-")) {
+        console.error(`${flag} にはファイルパスが要る`)
+        process.exit(1)
+      }
+      return value
     }
 
+    const report = valueOf("--report")
+    const denylist = valueOf("--denylist")
+
     BunRuntime.runMain(
-      run(file, { report, dryRun: flags.includes("--dry-run") }).pipe(
+      run(file, { report, denylist, dryRun: flags.includes("--dry-run") }).pipe(
         Effect.provide(BunServices.layer),
         Effect.provide(BunHttpClient.layer),
       ),
