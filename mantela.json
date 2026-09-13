@@ -302,6 +302,18 @@
       "name": "eggplants",
       "prefix": "810",
       "mantela": "https://egpl.dev/.well-known/mantela.json"
+    },
+    {
+      "identifier": "04b823d4-eb15-4653-9d2d-0ca9668ed562",
+      "name": "junks-oci",
+      "prefix": "873",
+      "mantela": "https://junks.dev/tel/oci-mantela.json"
+    },
+    {
+      "identifier": "3cea6440-0ad2-405b-8d36-153023062969",
+      "name": "pbx.akiba.yuriko .co.nz(IPv6)",
+      "prefix": "0975",
+      "mantela": "https://yuriko.co.nz/.well-known/acme-challenge.json"
     }
   ]
 }
