@@ -314,6 +314,12 @@
       "name": "pbx.akiba.yuriko .co.nz(IPv6)",
       "prefix": "0975",
       "mantela": "https://yuriko.co.nz/.well-known/acme-challenge.json"
+    },
+    {
+      "identifier": "baba5cf0-fed8-43a9-a8b5-240644bda9b7",
+      "name": "YurikoNET Cisco CallManager Express (SCCP)",
+      "prefix": "3",
+      "mantela": "https://yuriko.co.nz/.well-known/openpgpkey.json"
     }
   ]
 }
