@@ -326,6 +326,24 @@
       "name": "YurikoNET Cisco CallManager Express (SCCP)",
       "prefix": "3",
       "mantela": "https://yuriko.co.nz/.well-known/openpgpkey.json"
+    },
+    {
+      "identifier": "b6c6a038-2364-4fb5-a23f-3b3d2e70128c",
+      "name": "KSPD-ICB局",
+      "prefix": "907",
+      "mantela": "https://nao700.github.io/KSPB-ICB-TEL/mantela.json"
+    },
+    {
+      "identifier": "ea854d25-5259-403f-aef2-bb6328df7b5a",
+      "name": "やがみ局",
+      "prefix": "683",
+      "mantela": "https://shotayagami.github.io/yagami-mantela/mantela.json"
+    },
+    {
+      "identifier": "dcce0b41-1472-469e-9b6e-698a970112ea",
+      "name": "くらげ局",
+      "prefix": "495",
+      "mantela": "https://monolith-rave.xyz/tkytel/mantera.json"
     }
   ]
 }
